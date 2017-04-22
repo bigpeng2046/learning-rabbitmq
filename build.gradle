@@ -11,7 +11,37 @@ apply plugin: 'java'
 apply plugin: 'application'  
   
 // mainClassName = 'learning.rabbitmq.DefaultExchangeSenderDemo'
-mainClassName = 'learning.rabbitmq.CompetingReceiverDemo'
+// mainClassName = 'learning.rabbitmq.CompetingReceiverDemo'
+
+task runDefaultSender(type:JavaExec) {
+   main = 'learning.rabbitmq.DefaultExchangeSenderDemo'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task runCompetingReceiver(type:JavaExec) {
+   main = 'learning.rabbitmq.CompetingReceiverDemo'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task runFanoutSender(type:JavaExec) {
+   main = 'learning.rabbitmq.FanoutExchangeSenderDemo'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task runFanoutReceiver(type:JavaExec) {
+   main = 'learning.rabbitmq.PublishSubscribeReceiverDemo'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task runRequestSender(type:JavaExec) {
+   main = 'learning.rabbitmq.RequestSenderDemo'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task runRequestReceiver(type:JavaExec) {
+   main = 'learning.rabbitmq.RequestReceiverDemo'
+   classpath = sourceSets.main.runtimeClasspath
+}
 
 // In this section you declare where to find the dependencies of your project
 repositories {

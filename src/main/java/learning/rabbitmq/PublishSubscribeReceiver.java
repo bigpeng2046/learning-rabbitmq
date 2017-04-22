@@ -10,11 +10,11 @@ import com.rabbitmq.client.ConsumerCancelledException;
 import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.ShutdownSignalException;
 
-public class CompetingReceiver {
-	private final static String QUEUE_NAME = "event_queue";
-	private final static Logger LOGGER = LoggerFactory.getLogger(CompetingReceiver.class);
-	private Connection connection = null;
+public class PublishSubscribeReceiver {
+	private final static String EXCHANGE_NAME = "pubsub_exchange";
+	private final static Logger LOGGER = LoggerFactory.getLogger(Sender.class);
 	private Channel channel = null;
+	private Connection connection = null;
 	
 	public void initialize() {
 		try {
@@ -27,20 +27,21 @@ public class CompetingReceiver {
 		}
 	}
 	
-	public String receive() {
+	public String receive(String queue) {
 		if (channel == null) {
 			initialize();
 		}
 		
 		String message = null;
 		try {
-			channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+			channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
+			channel.queueDeclare(queue, false, false, false, null);
+			channel.queueBind(queue, EXCHANGE_NAME, "");
 			QueueingConsumer consumer = new QueueingConsumer(channel);
-			channel.basicConsume(QUEUE_NAME, true, consumer);
+			channel.basicConsume(queue, true, consumer);
 			QueueingConsumer.Delivery delivery = consumer.nextDelivery();
 			message = new String(delivery.getBody());
 			LOGGER.info("Message received: " + message);
-			
 			return message;
 		} catch (IOException e) {
 			LOGGER.error(e.getMessage(), e);
@@ -54,14 +55,14 @@ public class CompetingReceiver {
 		
 		return message;
 	}
-	
+
 	public void destroy() {
-		if (connection != null) {
-			try {
+		try {
+			if (connection != null) {
 				connection.close();
-			} catch (IOException e) {
-				LOGGER.warn(e.getMessage(), e);
 			}
+		} catch (IOException e) {
+			LOGGER.warn(e.getMessage(), e);
 		}
 	}
 }

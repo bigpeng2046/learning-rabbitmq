@@ -94,6 +94,23 @@ public class Sender {
 		
 		return result;
 	}
+
+	private static final String SEMINAR_QUEUE = "seminar_queue";
+	private static final String HACKATON_QUEUE = "hackaton_queue";
+	private static final String TOPIC_EXCHANGE = "topic_exchange";
+	
+	public void sendEvent(String exchange, String message, String messageKey) {
+		try {
+			channel.exchangeDeclare(TOPIC_EXCHANGE, "topic");
+			channel.queueDeclare(SEMINAR_QUEUE, false, false, false, null);
+			channel.queueDeclare(HACKATON_QUEUE, false, false, false, null);
+			channel.queueBind(SEMINAR_QUEUE, TOPIC_EXCHANGE, "seminar.#");
+			channel.queueBind(HACKATON_QUEUE, TOPIC_EXCHANGE, "hackaton.#");
+			channel.basicPublish(TOPIC_EXCHANGE, messageKey, null, message.getBytes());
+		} catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+	}
 	
 	public void destroy() {
 		try {
